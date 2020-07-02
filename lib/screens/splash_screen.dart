@@ -5,20 +5,28 @@ import 'package:flutter/material.dart';
 import 'package:pallimart/colors/colors.dart';
 import 'package:pallimart/utils/slider_layout_view.dart';
 import 'home.dart';
-
 class SplashScreen extends StatefulWidget {
+  String token;
+  SplashScreen(this.token);
   @override
-  _SplashScreenState createState() => _SplashScreenState();
+  _SplashScreenState createState() => _SplashScreenState(token);
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  String token;
+  _SplashScreenState(this.token);
   @override
   void initState() {
     super.initState();//28c17e
     Timer(
         Duration(seconds: 3),
-            () => Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (BuildContext context) => SliderLayoutView())));
+            () =>
+                token=='notLogin'?
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (BuildContext context) => SliderLayoutView())):
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    builder: (BuildContext context) => HomeScreen()))
+    );
   }
 
   @override

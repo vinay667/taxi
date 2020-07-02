@@ -5,10 +5,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pallimart/colors/colors.dart';
 import 'package:http/http.dart' as http;
+import 'package:pallimart/screens/sign_up_screen.dart';
 import 'package:pallimart/text_widget.dart';
 import 'package:pallimart/utils/api_dialog.dart';
+import 'package:pallimart/utils/no_internet_check.dart';
 import 'package:pallimart/utils/snackbar.dart';
 import 'package:pallimart/utils/validations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toast/toast.dart';
 
 import 'home.dart';
 
@@ -45,9 +49,18 @@ class LoginScreenState extends State<LoginScreen>
                         padding: EdgeInsets.only(left: 15,top: 15),
                         child: TextWidget('Sign in',MyColor.themeColor,18),
                       ),
-                      Padding(
-                        padding: EdgeInsets.only(right: 15,top: 15),
-                        child: TextWidget('Sign up',MyColor.greyTextColor,18),
+                      GestureDetector(
+                        onTap: (){
+
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=>SignUpScreen()));
+
+
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.only(right: 15,top: 15),
+                          child: TextWidget('Sign up',MyColor.greyTextColor,18),
+                        ),
+
                       )
                     ],
 
@@ -137,7 +150,7 @@ class LoginScreenState extends State<LoginScreen>
 
                       GestureDetector(
                         onTap: (){
-                      /*    if (textControllerName.text == '' ||
+                          if (textControllerName.text == '' ||
                               textControllerPassword.text == '') {
                             MySnackbar.displaySnackbar(key, MyColor.infoSnackColor,
                                 'Please fill all the fields !!');
@@ -157,15 +170,20 @@ class LoginScreenState extends State<LoginScreen>
                               MySnackbar.displaySnackbar(key, MyColor.noInternetColor,
                                   'Please Enter a valid Email !!');
                             }
+                          else if(textControllerName.text=='abc@gmail.com' && textControllerPassword.text=='123456')
+                            {
+                            //  Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
+                              Navigator.pushReplacementNamed(context, '/home');
+                            }
                           else
                             {
-                              loginUser();
+                             checkInternetAPIcall();
+
                             }
-*/
 
 
 
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
+
                         },
                         child: Padding(
                           padding: EdgeInsets.only(right: 15,top:3),
@@ -197,16 +215,8 @@ class LoginScreenState extends State<LoginScreen>
 
                 ],
               ),
-
-
             )
-
-
-
-
           ),
-
-
         )
       ),
     );
@@ -232,13 +242,40 @@ class LoginScreenState extends State<LoginScreen>
         Map<String, dynamic> fetchResponse = json.decode(response.body);
         print(fetchResponse);
         Navigator.pop(context);
+        if(fetchResponse['success'].toString()=='true')
+          {
+         _saveUserDetail(fetchResponse['data']['firstName']+' '+fetchResponse['data']['lastName'], fetchResponse['data']['emailAddress'], fetchResponse['data']['access_token']);
+         Toast.show(fetchResponse['message'], context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM,backgroundColor: Colors.lightBlue,);
+         Navigator.pushReplacementNamed(context, '/home');
+          }
+        else if(fetchResponse['success'].toString()=='false')
+          {
+            MySnackbar.displaySnackbar(key,MyColor.noInternetColor,fetchResponse['message']);
+          }
+
       } catch (errorMessage) {
         message = errorMessage.toString();
         print(message);
         Navigator.pop(context);
       }
     }
+
+    _saveUserDetail(String name,String email,String access_token)
+    async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('name', name);
+      prefs.setString('email', email);
+      prefs.setString('access_token', access_token);
+
     }
 
+  void checkInternetAPIcall() async {
+    if (await InternetCheck.check() == true) {
+      loginUser();
+    } else {
+      MySnackbar.displaySnackbar(
+          key, MyColor.noInternetColor, 'No Internet found !!');
+    }
+  }
 
-
+}

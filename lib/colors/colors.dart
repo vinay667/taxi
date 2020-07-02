@@ -16,7 +16,9 @@ class MyColor {
   };
   static const whiteColor = Color(0xFFFFFFFF);
   static const themeColor = Color(0xFF28c17e);
+  static const navigationHeaderColor = Color(0xFF438a5e);
   static const splashColor = Color(0xFF47710f);
+  static const greyDivider = Color(0xFFD8D8D8);
   static const noInternetColor = Color(0xFFdc143c);
   static const greyTextColor = Color(0xFF6f7A8A);
   static const lightGreyTextColor = Color(0xFFbbc0c7);
